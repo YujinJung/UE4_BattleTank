@@ -2,8 +2,6 @@
 
 #include "TankAIController.h"
 
-
-
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -12,11 +10,11 @@ void ATankAIController::BeginPlay()
 
 	if (!ControlledTank)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Tank AI not possessed"));
+		UE_LOG(LogTemp, Warning, TEXT("AI Tank is not possessed"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AI %s Possessed"), *(ControlledTank->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("AI %s is possessed"), *(ControlledTank->GetName()));
 	}
 }
 
@@ -24,6 +22,7 @@ ATank* ATankAIController::GetControlledTank() const
 {
 	return Cast<ATank>(GetPawn());
 }
+
 
 
 
