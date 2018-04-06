@@ -16,26 +16,16 @@ UTankAimingComponent::UTankAimingComponent()
 	// ...
 }
 
-// Called when the game starts
-void UTankAimingComponent::BeginPlay()
+void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
 {
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-// Called every frame
-void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	Barrel = BarrelToSet;
+	Turret = TurretToSet;
 }
 
 void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 {
-	if (!Barrel) { return; }
+	if (!ensure(Barrel)) { return; }
+
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
 
@@ -56,25 +46,12 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
 	}
-	/*else
-	{
-		auto Time = GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f: No Aim solve found"), Time);
-	}*/
-}
-
-void UTankAimingComponent::SetBarrelReference(UTankBarrel * BarrelToSet)
-{
-	Barrel = BarrelToSet;
-}
-
-void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
-{
-	Turret = TurretToSet;
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
+	if (!ensure(Barrel && Turret)) { return; }
+
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
