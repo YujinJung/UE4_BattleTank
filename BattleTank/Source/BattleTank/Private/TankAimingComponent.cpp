@@ -13,7 +13,7 @@ UTankAimingComponent::UTankAimingComponent()
 	// off to improve performance if you don't need them.
 
 	PrimaryComponentTick.bCanEverTick = true;
-	//bWantsInitializeComponent = true;
+	bWantsInitializeComponent = true;
 
 	// ...
 }
@@ -27,24 +27,20 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTimeInSeconds)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("reloading"));
 		FiringState = EFiringStatus::Reloading;
 	}
 	else if (IsBarrelMoving())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("aiming"));
 		FiringState = EFiringStatus::Aiming;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Lock"));
 		FiringState = EFiringStatus::Locked;
 	}
 }
 
 bool UTankAimingComponent::IsBarrelMoving()
 {
-	UE_LOG(LogTemp, Warning, TEXT("isBarrel"));
 	if (!ensure(Barrel)) { return false; }
 
 	auto BarrelForward = Barrel->GetForwardVector();
@@ -93,7 +89,15 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
 
 	Barrel->Elevate(DeltaRotator.Pitch);
-	Turret->TurretRotate(DeltaRotator.Yaw);
+
+	if (DeltaRotator.Yaw < 180)
+	{
+		Turret->TurretRotate(DeltaRotator.Yaw);
+	}
+	else
+	{
+		Turret->TurretRotate(-DeltaRotator.Yaw);
+	}
 }
 
 void UTankAimingComponent::Fire()
@@ -113,4 +117,9 @@ void UTankAimingComponent::Fire()
 
 		LastFireTime = FPlatformTime::Seconds();
 	}
+}
+
+EFiringStatus UTankAimingComponent::GetFiringState() const
+{
+	return FiringState;
 }

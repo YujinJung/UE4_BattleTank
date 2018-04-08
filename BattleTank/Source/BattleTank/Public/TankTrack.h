@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(meta=(BlueprintSpawnableComponent), hidecategories = ("Collision") )
+UCLASS(meta=(BlueprintSpawnableComponent) )
 class BATTLETANK_API UTankTrack : public UStaticMeshComponent
 {
 	GENERATED_BODY()
@@ -21,4 +21,18 @@ public:
 	// Max force per track, in Newtons
 	UPROPERTY(EditDefaultsOnly)
 	float TrackMaxDrivingForce = 400000;
+
+private:
+	UTankTrack();
+
+	virtual void BeginPlay() override;
+
+	void ApplySidewaysForce();
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit);
+
+	void DriveTrack();
+
+	float CurrentThrottle = 0;
 };
