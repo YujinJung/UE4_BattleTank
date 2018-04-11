@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankAIController.h"
+#include "Tank.h"
 #include "TankAimingComponent.h"
+#include "Delegate.h"
 #include "Engine/World.h"
 
 void ATankAIController::BeginPlay()
@@ -9,18 +11,22 @@ void ATankAIController::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ATankAIController::SetAIMaterial(APawn* player, UMaterialInterface * Material_High, UMaterialInterface * Material_Low, UStaticMeshComponent* TankBody, UStaticMeshComponent* TankTurret, UStaticMeshComponent* TankBarrel, UStaticMeshComponent* LeftTankTrack, UStaticMeshComponent* RightTankTrack)
+void ATankAIController::SetPawn(APawn * InPawn)
 {
-	if (GetWorld()->GetFirstPlayerController()->GetPawn() != player)
+	Super::SetPawn(InPawn);
+	if (InPawn)
 	{
-		TankBody->SetMaterial(0, Material_Low);
-		TankTurret->SetMaterial(0, Material_Low);
-		TankBarrel->SetMaterial(0, Material_High);
-		LeftTankTrack->SetMaterial(0, Material_High);
-		RightTankTrack->SetMaterial(0, Material_High);
+		auto PossessedTank = Cast<ATank>(InPawn);
+		if (!ensure(PossessedTank)) { return; }
+
+		PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankAIController::OnPossedTankDeath);
 	}
 }
-	
+void ATankAIController::OnPossedTankDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Received!!"));
+}
+
 void ATankAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -42,4 +48,25 @@ void ATankAIController::Tick(float DeltaSeconds)
 	{
 		AimingComponent->Fire(ControlledTank);
 	}
+}
+
+void ATankAIController::SetAIMaterial(APawn* player, UMaterialInterface * Material_High, UMaterialInterface * Material_Low, UStaticMeshComponent* TankBody, UStaticMeshComponent* TankTurret, UStaticMeshComponent* TankBarrel, UStaticMeshComponent* LeftTankTrack, UStaticMeshComponent* RightTankTrack)
+{
+	if (IsAITank(player))
+	{
+		TankBody->SetMaterial(0, Material_Low);
+		TankTurret->SetMaterial(0, Material_Low);
+		TankBarrel->SetMaterial(0, Material_High);
+		LeftTankTrack->SetMaterial(0, Material_High);
+		RightTankTrack->SetMaterial(0, Material_High);
+	}
+}
+
+bool ATankAIController::IsAITank(APawn* player)
+{
+	if (GetWorld()->GetFirstPlayerController()->GetPawn() != player)
+	{
+		return true;
+	}
+	return false;
 }

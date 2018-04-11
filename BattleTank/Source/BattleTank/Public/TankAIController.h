@@ -15,6 +15,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void SetAIMaterial(APawn* player, UMaterialInterface * Material_High, UMaterialInterface * Material_Low, UStaticMeshComponent* TankBody, UStaticMeshComponent* TankTurret, UStaticMeshComponent* TankBarrel, UStaticMeshComponent* LeftTankTrack, UStaticMeshComponent* RightTankTrack);
 
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	bool IsAITank(APawn * player);
+
 protected:
 	// How close can the AI tank get
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
@@ -23,6 +26,10 @@ protected:
 private:
 	virtual void BeginPlay() override;
 
+	virtual void SetPawn(APawn* InPawn) override;
+
 	virtual void Tick(float DeltaSeconds) override;
 
+	UFUNCTION()
+	void OnPossedTankDeath();
 };
