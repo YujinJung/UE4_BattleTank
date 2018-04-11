@@ -9,13 +9,24 @@ void ATankAIController::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ATankAIController::SetAIMaterial(APawn* player, UMaterialInterface * Material_High, UMaterialInterface * Material_Low, UStaticMeshComponent* TankBody, UStaticMeshComponent* TankTurret, UStaticMeshComponent* TankBarrel, UStaticMeshComponent* LeftTankTrack, UStaticMeshComponent* RightTankTrack)
+{
+	if (GetWorld()->GetFirstPlayerController()->GetPawn() != player)
+	{
+		TankBody->SetMaterial(0, Material_Low);
+		TankTurret->SetMaterial(0, Material_Low);
+		TankBarrel->SetMaterial(0, Material_High);
+		LeftTankTrack->SetMaterial(0, Material_High);
+		RightTankTrack->SetMaterial(0, Material_High);
+	}
+}
+	
 void ATankAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
 	auto PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
 	auto ControlledTank = GetPawn();
-
 
 	if (!ensure(PlayerTank && ControlledTank)) { return; }
 
@@ -24,11 +35,11 @@ void ATankAIController::Tick(float DeltaSeconds)
 
 	// Aim towards the player
 	auto AimingComponent = ControlledTank->FindComponentByClass<UTankAimingComponent>();
-	AimingComponent->AimAt(PlayerTank->GetActorLocation());
+	bool isAimAt = AimingComponent->AimAt(PlayerTank->GetActorLocation());
 
 	// Fire if ready
-	if (AimingComponent->GetFiringState() == EFiringStatus::Locked)
+	if (AimingComponent->GetFiringState() == EFiringStatus::Locked && isAimAt)
 	{
-		AimingComponent->Fire();
+		AimingComponent->Fire(ControlledTank);
 	}
 }

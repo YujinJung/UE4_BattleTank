@@ -31,10 +31,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 	
-	void AimAt(FVector HitLocation);
+	bool AimAt(FVector HitLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "Firing")
-	void Fire();
+	void Fire(APawn *player);
 
 	EFiringStatus GetFiringState() const;
 
@@ -55,9 +55,13 @@ private:
 
 	UTankBarrel * Barrel = nullptr;
 	UTankTurret * Turret = nullptr;
+	APawn* PlayerTank = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AProjectile> ProjectileBlueprint;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	TSubclassOf<AProjectile> AIProjectileBlueprint;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float LaunchSpeed = 4000; // 4000m/s

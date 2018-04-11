@@ -21,6 +21,7 @@ UTankAimingComponent::UTankAimingComponent()
 void UTankAimingComponent::BeginPlay()
 {
 	LastFireTime = FPlatformTime::Seconds();
+	PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction)
@@ -58,9 +59,9 @@ void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* Tur
 	Turret = TurretToSet;
 }
 
-void UTankAimingComponent::AimAt(FVector HitLocation)
+bool UTankAimingComponent::AimAt(FVector HitLocation)
 {
-	if (!ensure(Barrel)) { return; }
+	if (!ensure(Barrel)) { return false; }
 
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
@@ -82,6 +83,8 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 		AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
 	}
+
+	return bHaveAimSolution;
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
@@ -104,20 +107,34 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	}
 }
 
-void UTankAimingComponent::Fire()
+void UTankAimingComponent::Fire(APawn *player)
 {
 	if (FiringState == EFiringStatus::Locked || FiringState == EFiringStatus::Aiming)
 	{
 		if (!ensure(Barrel)) { return; }
 		if (!ensure(ProjectileBlueprint)) { return; }
+		if (!ensure(AIProjectileBlueprint)) { return; }
 
-		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
-			ProjectileBlueprint,
-			Barrel->GetSocketLocation(FName("Projectile")),
-			Barrel->GetSocketRotation(FName("Projectile"))
-			);
+		if (player == PlayerTank)
+		{
+			auto Projectile = GetWorld()->SpawnActor<AProjectile>(
+				ProjectileBlueprint,
+				Barrel->GetSocketLocation(FName("Projectile")),
+				Barrel->GetSocketRotation(FName("Projectile"))
+				);
 
-		Projectile->LaunchProjectile(LaunchSpeed);
+			Projectile->LaunchProjectile(LaunchSpeed);
+		}
+		else
+		{
+			auto AIProjectile = GetWorld()->SpawnActor<AProjectile>(
+				AIProjectileBlueprint,
+				Barrel->GetSocketLocation(FName("Projectile")),
+				Barrel->GetSocketRotation(FName("Projectile"))
+				);
+
+			AIProjectile->LaunchProjectile(LaunchSpeed);
+		}
 
 		LastFireTime = FPlatformTime::Seconds();
 		RoundsLeft--;
