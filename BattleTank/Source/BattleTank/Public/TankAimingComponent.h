@@ -2,10 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Classes/Kismet/GameplayStatics.h"
-#include "Components/StaticMeshComponent.h"
 #include "Components/ActorComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "TankAimingComponent.generated.h"
 
 // Enum for aimimng states
@@ -53,6 +51,10 @@ private:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
+	void MoveBarrelTowards(FVector AimDirection);
+
+	bool IsBarrelMoving();
+
 	UTankBarrel * Barrel = nullptr;
 	UTankTurret * Turret = nullptr;
 	APawn* PlayerTank = nullptr;
@@ -67,7 +69,7 @@ private:
 	float LaunchSpeed = 4000; // 4000m/s
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-	float ReloadTimeInSeconds = 3;
+	float ReloadTimeInSeconds = 5;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	int32 RoundsLeft = 3;
@@ -75,8 +77,4 @@ private:
 	double LastFireTime = 0;
 
 	FVector AimDirection;
-
-	void MoveBarrelTowards(FVector AimDirection);
-
-	bool IsBarrelMoving();
 };

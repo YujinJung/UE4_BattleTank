@@ -3,7 +3,7 @@
 #include "TankTurret.h"
 #include "Engine/World.h"
 
-void UTankTurret::TurretRotate(float RelativeSpeed)
+void UTankTurret::Rotate(float RelativeSpeed)
 {
 	// Limit Barrel elevation speed 
 	RelativeSpeed = FMath::Clamp<float>(RelativeSpeed, -1, +1);

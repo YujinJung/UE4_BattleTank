@@ -5,10 +5,24 @@
 
 void UTankMovementComponent::Initialize(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet)
 {
-	if (!ensure(LeftTrackToSet && RightTrackToSet)) { return; }
-
 	LeftTrack = LeftTrackToSet;
 	RightTrack = RightTrackToSet;
+}
+
+
+void UTankMovementComponent::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
+{
+	auto TankForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
+	auto AIForwardIntention = MoveVelocity.GetSafeNormal();
+
+	// cos graph
+	// PIDIV2 is stop, because tank need to rotate
+	auto ForwardThrow = FVector::DotProduct(TankForward, AIForwardIntention);
+	IntendMoveForward(ForwardThrow);
+
+	// sin graph
+	auto RightThrow = FVector::CrossProduct(TankForward, AIForwardIntention).Z;
+	IntendTurnRight(RightThrow);
 }
 
 void UTankMovementComponent::IntendMoveForward(float Throw)
@@ -25,27 +39,4 @@ void UTankMovementComponent::IntendTurnRight(float Throw)
 
 	LeftTrack->SetThrottle(Throw);
 	RightTrack->SetThrottle(-Throw);
-}
-
-void UTankMovementComponent::IntendTurnLeft(float Throw)
-{
-	if (!ensure(LeftTrack && RightTrack)) { return; }
-	
-	LeftTrack->SetThrottle(-Throw);
-	RightTrack->SetThrottle(Throw);
-}
-
-void UTankMovementComponent::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
-{
-	auto TankForward = GetOwner()->GetActorForwardVector().GetSafeNormal();
-	auto AIForwardIntention = MoveVelocity.GetSafeNormal();
-
-	// cos graph
-	// PIDIV2 is stop, because tank need to rotate
-	auto ForwardThrow = FVector::DotProduct(TankForward, AIForwardIntention);
-	IntendMoveForward(ForwardThrow);
-
-	// sin graph
-	auto RightThrow = FVector::CrossProduct(TankForward, AIForwardIntention).Z;
-	IntendTurnRight(RightThrow);
 }
