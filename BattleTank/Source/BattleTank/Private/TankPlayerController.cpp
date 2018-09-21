@@ -39,6 +39,9 @@ void ATankPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	AimTowardsCrosshair();
+
+	ATank* Tank = Cast<ATank>(GetPawn());
+	TankDead(Tank);
 }
 
 void ATankPlayerController::AimTowardsCrosshair()
